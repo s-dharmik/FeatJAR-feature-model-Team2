@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.featjar.base.data.Result;
 import de.featjar.base.data.identifier.Identifiers;
+import de.featjar.base.tree.Trees;
+import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.formula.structure.Expressions;
 import java.util.*;
 import org.junit.jupiter.api.Assertions;
@@ -93,10 +95,16 @@ public class FeatureModelTest {
         Assertions.assertTrue(featureModel.hasFeature(childFeature.getIdentifier()));
         Assertions.assertTrue(featureModel.getFeature("root2").isEmpty());
         rootFeature.mutate().setName("root2");
+
+        TreePrinter visitor = new TreePrinter();
+        visitor.setToStringFunction(tree -> ((IFeatureTree) tree).getFeature().getName().get());
+        
+		System.out.println(Trees.traverse(rootFeature.getFeatureTree().get(), visitor).get());
         Assertions.assertEquals(Result.of(rootFeature), featureModel.getFeature("root2"));
         assertEquals(List.of(childTree), rootFeature.getFeatureTree().get().getChildren());
         assertEquals(rootFeature.getFeatureTree(), childTree.getParent());
         childTree.mutate().removeFromTree();
         assertEquals(List.of(), rootFeature.getFeatureTree().get().getChildren());
+		System.out.println(Trees.traverse(rootFeature.getFeatureTree().get(), visitor).get());
     }
 }
