@@ -25,7 +25,7 @@ import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.feature.model.mixins.IHasCommonAttributes;
 import de.featjar.feature.model.mixins.IHasConstraints;
 import de.featjar.feature.model.mixins.IHasFeatureTree;
-import de.featjar.formula.structure.formula.IFormula;
+import de.featjar.formula.structure.IFormula;
 import java.util.Collection;
 
 /**
