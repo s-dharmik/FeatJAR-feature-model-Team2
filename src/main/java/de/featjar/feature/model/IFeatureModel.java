@@ -54,7 +54,8 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
 	void activateFeature(IIdentifier featureId);
 	void deactivateFeature(IIdentifier featureId);
 	boolean isFeatureActive(IIdentifier featureId);
-	
+	IConstraint addConstraint(IFormula formula);
+    boolean removeConstraint(IConstraint constraint);
 	
     IFeatureModel clone();
 

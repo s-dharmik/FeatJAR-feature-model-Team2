@@ -63,6 +63,8 @@ public interface IConstraint extends IFeatureModelElement, IHasCommonAttributes 
     default IMutableConstraint mutate() {
         return (IMutableConstraint) this;
     }
+    
+    
 
     static interface IMutableConstraint extends IConstraint, IHasMutableCommonAttributes {
         void setFormula(IFormula formula);

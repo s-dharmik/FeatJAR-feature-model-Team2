@@ -66,6 +66,9 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
         constraints = Maps.empty();
         attributeValues = new LinkedHashMap<>(4);
     }
+    
+
+    
 
     protected FeatureModel(FeatureModel otherFeatureModel) {
         identifier = otherFeatureModel.getNewIdentifier();
