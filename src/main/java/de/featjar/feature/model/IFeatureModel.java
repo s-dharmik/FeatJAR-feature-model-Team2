@@ -51,6 +51,11 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
     // every plugin defines a feature model (uvl) that restricts what its extensions can and cannot do (replacing
     // extensions.xml)
 
+	void activateFeature(IIdentifier featureId);
+	void deactivateFeature(IIdentifier featureId);
+	boolean isFeatureActive(IIdentifier featureId);
+	
+	
     IFeatureModel clone();
 
     Collection<IFeature> getFeatures();
