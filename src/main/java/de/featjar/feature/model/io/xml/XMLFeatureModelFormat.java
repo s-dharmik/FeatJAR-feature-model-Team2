@@ -20,6 +20,27 @@
  */
 package de.featjar.feature.model.io.xml;
 
+import java.lang.System.Logger.Level;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+
 import de.featjar.base.FeatJAR;
 import de.featjar.base.data.IAttribute;
 import de.featjar.base.data.Maps;
@@ -48,23 +69,6 @@ import de.featjar.formula.structure.formula.connective.Not;
 import de.featjar.formula.structure.formula.connective.Or;
 import de.featjar.formula.structure.formula.predicate.Equals;
 import de.featjar.formula.structure.formula.predicate.Literal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 /**
  * Parses and writes feature models from and to FeatureIDE XML files.
@@ -298,6 +302,7 @@ public class XMLFeatureModelFormat extends AXMLFeatureModelFormat<IFeatureModel,
         if (description != null) {
             description = description.replaceAll("(\r\n|\r|\n)\\s*", "\n").replaceAll("\\A\n|\n\\Z", "");
         }
+        
         return description;
     }
 

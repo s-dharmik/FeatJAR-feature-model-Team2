@@ -20,6 +20,18 @@
  */
 package de.featjar.feature.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import de.featjar.base.data.Attribute;
 import de.featjar.base.data.IAttributable.IMutatableAttributable;
 import de.featjar.base.data.IAttribute;
@@ -31,19 +43,11 @@ import de.featjar.base.tree.Trees;
 import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 import de.featjar.formula.structure.formula.IFormula;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
-public class FeatureModel implements IMutableFeatureModel, IMutatableAttributable {
+public class FeatureModel implements IMutableFeatureModel, IMutatableAttributable, IFeatureModel {
 
     protected final IIdentifier identifier;
+    private Set<IIdentifier> activeFeatures = new HashSet<>();
 
     protected final List<IFeatureTree> featureTreeRoots;
     protected final LinkedHashMap<IIdentifier, IFeature> features;
@@ -270,5 +274,21 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
     @Override
     public boolean hasFeature(IFeature feature) {
         return features.containsKey(feature.getIdentifier());
+    }
+    
+    // FeatureModel-specific methods
+    @Override
+    public void activateFeature(IIdentifier featureId) {
+        activeFeatures.add(featureId);
+    }
+
+    @Override
+    public void deactivateFeature(IIdentifier featureId) {
+        activeFeatures.remove(featureId);
+    }
+
+    @Override
+    public boolean isFeatureActive(IIdentifier featureId) {
+        return activeFeatures.contains(featureId);
     }
 }

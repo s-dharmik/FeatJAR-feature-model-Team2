@@ -27,6 +27,7 @@ import de.featjar.feature.model.mixins.IHasConstraints;
 import de.featjar.feature.model.mixins.IHasFeatureTree;
 import de.featjar.formula.structure.formula.IFormula;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A feature model represents the configuration space of a software system.
@@ -50,6 +51,10 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
     // this could even be used to generate query plans (e.g., find some configuration that counts my formula).
     // every plugin defines a feature model (uvl) that restricts what its extensions can and cannot do (replacing
     // extensions.xml)
+	
+	void activateFeature(IIdentifier featureId);
+	void deactivateFeature(IIdentifier featureId);
+	boolean isFeatureActive(IIdentifier featureId);
 
     IFeatureModel clone();
 
@@ -87,4 +92,5 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
 
         void removeFeatureTreeRoot(IFeature feature);
     }
+
 }

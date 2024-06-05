@@ -26,7 +26,7 @@ import de.featjar.feature.model.IFeature.IMutableFeature;
 public class Feature extends AFeatureModelElement implements IMutableFeature {
     protected Class<?> type;
 
-    protected Feature(IFeatureModel featureModel) {
+    public Feature(IFeatureModel featureModel) {
         super(featureModel);
     }
 
