@@ -256,8 +256,8 @@ public class FeatureModelTest {
         System.out.println("Feature 2 Name: " + feature2.getName().orElse("Error: Name not set"));
     }
 
-
     
+   
     @Test
     public void testComplexFeatureHierarchy() {
         System.out.println("Feature addition and deletion");
@@ -266,7 +266,8 @@ public class FeatureModelTest {
         IFeature rootFeature = featureModel.mutate().addFeature("root");
         IFeatureTree rootTree = featureModel.mutate().addFeatureTreeRoot(rootFeature);
         System.out.println("Feature " + rootFeature.getName().orElse("[Unnamed Feature]") + " is added.");
-
+        assertNotNull(rootFeature, "Root feature must not be null.");
+        
         // Add child features and their respective trees
         IFeature childFeature1 = featureModel.mutate().addFeature("child1");
         IFeatureTree childTree1 = rootTree.mutate().addFeatureBelow(childFeature1);
@@ -278,15 +279,26 @@ public class FeatureModelTest {
         System.out.println("Feature " + childFeature2.getName().orElse("[Unnamed Feature]") + " is added.");
         assertTrue(featureModel.hasFeature(childFeature2.getIdentifier()), "Feature 'child2' should be present in the model.");
 
+        // Adding a sub-child to test deeper hierarchy
+        IFeature subChildFeature = featureModel.mutate().addFeature("subChild");
+        IFeatureTree subChildTree = childTree1.mutate().addFeatureBelow(subChildFeature);
+        System.out.println("Sub-child feature " + subChildFeature.getName().orElse("[Unnamed Feature]") + " is added to child1.");
+        assertTrue(featureModel.hasFeature(subChildFeature.getIdentifier()), "Feature 'subChild' should be present in the model.");
+
         // Print hierarchy structure before removal
         System.out.println("Hierarchy structure before removal of feature:");
         printFeatureTree(rootTree, 0);
 
+        // Remove the sub-child feature and its tree node
+        childTree1.mutate().removeChild(subChildTree);
+        boolean subChildRemovedFromModel = featureModel.mutate().removeFeature(subChildFeature);
+        assertTrue(subChildRemovedFromModel, "Sub-child feature 'subChild' should be removed from the model.");
+        System.out.println("Sub-child tree for feature " + subChildFeature.getName().orElse("[Unnamed Feature]") + " is removed.");
+        assertFalse(featureModel.hasFeature(subChildFeature.getIdentifier()), "Feature 'subChild' should be absent after removal.");
+
         // Remove the child feature and its tree node
         rootTree.mutate().removeChild(childTree1);
         System.out.println("Child tree for feature " + childFeature1.getName().orElse("[Unnamed Feature]") + " is removed.");
-
-        // Remove the feature from the model
         boolean removedFromModel = featureModel.mutate().removeFeature(childFeature1);
         assertTrue(removedFromModel, "Feature 'child1' should be removed from the model.");
         System.out.println("Feature " + childFeature1.getName().orElse("[Unnamed Feature]") + " is removed.");
@@ -317,6 +329,7 @@ public class FeatureModelTest {
             printFeatureTree(child, level + 1);  // Recurse for each child
         }
     }
+
 
 
 
@@ -430,5 +443,5 @@ public class FeatureModelTest {
     }
 
    
-    
+  
 }
