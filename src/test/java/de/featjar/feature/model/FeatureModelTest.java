@@ -441,7 +441,6 @@ public class FeatureModelTest {
         System.out.println("Number of constraints added: " + constraintsAdded);
         System.out.println("Number of constraints removed: " + constraintsRemoved);
     }
-
    
   
 }
