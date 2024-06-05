@@ -137,4 +137,6 @@ public interface IFeatureTree extends IRootedTree<IFeatureTree>, IAttributable, 
     }
 
     int getGroupID();
+
+	boolean isRoot(); //sarthak
 }

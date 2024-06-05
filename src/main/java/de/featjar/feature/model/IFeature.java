@@ -25,6 +25,7 @@ import de.featjar.base.data.Sets;
 import de.featjar.base.data.identifier.AIdentifier;
 import de.featjar.feature.model.mixins.IHasCommonAttributes;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
 /**
  * A feature in a {@link FeatureModel} describes some functionality of a software system.
@@ -39,7 +40,7 @@ import java.util.LinkedHashSet;
  */
 public interface IFeature extends IFeatureModelElement, IHasCommonAttributes {
 
-    Result<IFeatureTree> getFeatureTree();
+    Result<IFeatureTree> getFeatureTree(); //sarthak
 
     Class<?> getType();
 

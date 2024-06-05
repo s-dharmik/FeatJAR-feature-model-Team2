@@ -281,4 +281,10 @@ public class FeatureTree extends ARootedTree<IFeatureTree> implements IMutableFe
         }
         return (S) attributeValues.remove(attribute);
     }
+
+	@Override										//sarthak
+	public boolean isRoot() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -87,4 +87,8 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
 
         void removeFeatureTreeRoot(IFeature feature);
     }
+
+	void setShouldDeleteRootFeatureFlag(boolean b); //sarthak
+
+	boolean deleteFeatureAndPromoteChildren(IIdentifier identifier); //sarthak
 }
