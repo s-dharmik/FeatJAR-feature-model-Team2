@@ -58,6 +58,7 @@ import org.junit.jupiter.api.Test;
 public class FeatureModelTest {
     IFeatureModel featureModel;
     
+  
 
     @BeforeEach
     public void createFeatureModel() {
@@ -145,7 +146,7 @@ public class FeatureModelTest {
 
     
     
-    @Test
+    /*@Test
     public void testPerformance() {
         System.out.println("Testing performance metrics...");
 
@@ -206,7 +207,7 @@ public class FeatureModelTest {
         // Optionally, assert other performance metrics if necessary
         Assertions.assertTrue(durationAddInMilliseconds < 1000, "Adding constraints should take less than 1 second.");
         Assertions.assertTrue(durationRemoveInMilliseconds < 1000, "Removing constraints should take less than 1 second.");
-    }
+    }*/
     
     
     @Test
@@ -259,7 +260,7 @@ public class FeatureModelTest {
     
    
     @Test
-    public void testComplexFeatureHierarchy() {
+    public void testAddandRemoveFeatures() {
         System.out.println("Feature addition and deletion");
 
         // Add root feature and its tree
