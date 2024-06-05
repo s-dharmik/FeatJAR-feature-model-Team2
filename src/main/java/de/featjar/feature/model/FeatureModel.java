@@ -22,6 +22,7 @@ package de.featjar.feature.model;
 
 import de.featjar.base.data.Attribute;
 
+
 import de.featjar.base.data.IAttributable.IMutatableAttributable;
 import de.featjar.base.data.IAttribute;
 import de.featjar.base.data.Maps;
@@ -31,7 +32,7 @@ import de.featjar.base.data.identifier.UUIDIdentifier;
 import de.featjar.base.tree.Trees;
 import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
-import de.featjar.formula.structure.IFormula;
+import de.featjar.formula.structure.formula.IFormula;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

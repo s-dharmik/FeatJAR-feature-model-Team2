@@ -21,6 +21,7 @@
 package de.featjar.feature.model.transformer;
 
 import de.featjar.base.computation.AComputation;
+
 import de.featjar.base.computation.Dependency;
 import de.featjar.base.computation.IComputation;
 import de.featjar.base.computation.Progress;
@@ -31,14 +32,14 @@ import de.featjar.feature.model.IFeature;
 import de.featjar.feature.model.IFeatureModel;
 import de.featjar.feature.model.IFeatureTree;
 import de.featjar.formula.structure.Expressions;
-import de.featjar.formula.structure.IFormula;
-import de.featjar.formula.structure.connective.And;
-import de.featjar.formula.structure.connective.AtLeast;
-import de.featjar.formula.structure.connective.Between;
-import de.featjar.formula.structure.connective.Choose;
-import de.featjar.formula.structure.connective.Implies;
-import de.featjar.formula.structure.connective.Reference;
-import de.featjar.formula.structure.predicate.Literal;
+import de.featjar.formula.structure.formula.IFormula;
+import de.featjar.formula.structure.formula.connective.And;
+import de.featjar.formula.structure.formula.connective.AtLeast;
+import de.featjar.formula.structure.formula.connective.Between;
+import de.featjar.formula.structure.formula.connective.Choose;
+import de.featjar.formula.structure.formula.connective.Implies;
+import de.featjar.formula.structure.formula.connective.Reference;
+import de.featjar.formula.structure.formula.predicate.Literal;
 import de.featjar.formula.structure.term.value.Variable;
 import java.util.ArrayList;
 import java.util.HashSet;

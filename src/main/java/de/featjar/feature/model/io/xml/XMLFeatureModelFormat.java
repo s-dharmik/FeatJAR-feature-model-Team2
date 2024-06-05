@@ -21,6 +21,7 @@
 package de.featjar.feature.model.io.xml;
 
 import de.featjar.base.FeatJAR;
+
 import de.featjar.base.data.IAttribute;
 import de.featjar.base.data.Maps;
 import de.featjar.base.data.Problem;
@@ -40,14 +41,14 @@ import de.featjar.feature.model.io.AttributeIO;
 import de.featjar.formula.io.xml.AXMLFeatureModelFormat;
 import de.featjar.formula.structure.Expressions;
 import de.featjar.formula.structure.IExpression;
-import de.featjar.formula.structure.IFormula;
-import de.featjar.formula.structure.connective.And;
-import de.featjar.formula.structure.connective.AtMost;
-import de.featjar.formula.structure.connective.Implies;
-import de.featjar.formula.structure.connective.Not;
-import de.featjar.formula.structure.connective.Or;
-import de.featjar.formula.structure.predicate.Equals;
-import de.featjar.formula.structure.predicate.Literal;
+import de.featjar.formula.structure.formula.IFormula;
+import de.featjar.formula.structure.formula.connective.And;
+import de.featjar.formula.structure.formula.connective.AtMost;
+import de.featjar.formula.structure.formula.connective.Implies;
+import de.featjar.formula.structure.formula.connective.Not;
+import de.featjar.formula.structure.formula.connective.Or;
+import de.featjar.formula.structure.formula.predicate.Equals;
+import de.featjar.formula.structure.formula.predicate.Literal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
