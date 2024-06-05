@@ -67,14 +67,14 @@ public class FeatureIDE_XML_FeatureModelFormat implements IFormat<IFeatureModel>
         return feature;
     }
 
-    private void createFeatureTree(IFeatureModel featureModel, Element parentElement, Result<IFeatureTree> result) throws ParseException {
+    private void createFeatureTree(IFeatureModel featureModel, Element parentElement, IFeatureTree tree) throws ParseException {
         // This code here is parsing the child features.
     	
     	NodeList childNodeList = parentElement.getElementsByTagName("feature");
     	for(int i = 0; i<childNodeList.getLength(); i++) {
     		Element childElement = (Element) childNodeList.item(i);
     		IFeature childFeature = createFeature(featureModel, childElement);
-    		result.get().mutate().addChild(childFeature);
+    		tree.mutate().addChild(tree);
     		createFeatureTree(featureModel, childElement, childFeature.getFeatureTree());
     		
     		
