@@ -14,6 +14,13 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for Mutation and Error Handling 
+ *
+ * @author Ananya
+ */
+
+
 public class MutationTest {
     IFeatureModel featureModel;
     List<String> predefinedNames;
