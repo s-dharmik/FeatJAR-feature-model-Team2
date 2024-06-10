@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 
+
 import de.featjar.base.data.Result;
 import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.base.data.identifier.Identifiers;
@@ -45,7 +46,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
+import java.util.Iterator;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,7 @@ import org.junit.jupiter.api.Test;
  */
 public class FeatureModelTest {
     IFeatureModel featureModel;
+ 
     
   
 
@@ -64,6 +67,7 @@ public class FeatureModelTest {
     public void createFeatureModel() {
         featureModel = new FeatureModel(Identifiers.newCounterIdentifier());
     }
+
 
     @Test
     public void featureModel() {
@@ -145,69 +149,6 @@ public class FeatureModelTest {
     }
 
     
-    
-    /*@Test
-    public void testPerformance() {
-        System.out.println("Testing performance metrics...");
-
-        // Number of constraints to add and remove
-        int numberOfConstraints = 5;
-        List<IConstraint> addedConstraints = new ArrayList<>();
-
-        // Start time for adding constraints
-        long startTimeAdd = System.currentTimeMillis();
-
-        // Adding constraints
-        for (int i = 0; i < numberOfConstraints; i++) {
-            IFeature featureA = featureModel.mutate().addFeature("featureA" + i);
-            IFeature featureB = featureModel.mutate().addFeature("featureB" + i);
-            IFormula formula = Expressions.and(
-                Expressions.variableAsFormula(featureA.getName().orElseThrow()),
-                Expressions.variableAsFormula(featureB.getName().orElseThrow())
-            );
-            IConstraint constraint = featureModel.mutate().addConstraint(formula);
-            addedConstraints.add(constraint);
-        }
-
-        // End time for adding constraints
-        long endTimeAdd = System.currentTimeMillis();
-
-        // Calculate the duration for adding constraints in milliseconds
-        double durationAddInMilliseconds = endTimeAdd - startTimeAdd;
-        System.out.println("Added " + numberOfConstraints + " constraints in " + durationAddInMilliseconds + " milliseconds");
-
-        // Assert that the correct number of constraints have been added
-        Assertions.assertEquals(numberOfConstraints, addedConstraints.size(), "The number of constraints added should match the expected total.");
-
-        // Start time for removing constraints
-        long startTimeRemove = System.currentTimeMillis();
-
-        // Removing constraints
-        for (IConstraint constraint : addedConstraints) {
-            featureModel.mutate().removeConstraint(constraint);
-        }
-
-        // End time for removing constraints
-        long endTimeRemove = System.currentTimeMillis();
-
-        // Calculate the duration for removing constraints in milliseconds
-        double durationRemoveInMilliseconds = endTimeRemove - startTimeRemove;
-        System.out.println("Removed " + numberOfConstraints + " constraints in " + durationRemoveInMilliseconds + " milliseconds");
-
-        // Assert that the constraints have been removed
-        for (IConstraint constraint : addedConstraints) {
-            Assertions.assertFalse(featureModel.hasConstraint(constraint.getIdentifier()), "Constraint should be removed from the model.");
-        }
-
-        // Print performance metrics
-        System.out.println("Performance metrics:");
-        System.out.println("Time to add constraints: " + durationAddInMilliseconds + " milliseconds");
-        System.out.println("Time to remove constraints: " + durationRemoveInMilliseconds + " milliseconds");
-
-        // Optionally, assert other performance metrics if necessary
-        Assertions.assertTrue(durationAddInMilliseconds < 1000, "Adding constraints should take less than 1 second.");
-        Assertions.assertTrue(durationRemoveInMilliseconds < 1000, "Removing constraints should take less than 1 second.");
-    }*/
     
     
     @Test
@@ -333,6 +274,9 @@ public class FeatureModelTest {
 
 
 
+   
+    
+    
 
     @Test
     public void testExceptionHandling() {
