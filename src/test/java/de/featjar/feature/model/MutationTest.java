@@ -62,6 +62,16 @@ public class MutationTest {
             assertTrue(exists, "Feature '" + name + "' should exist");
         });
 
+        
+        assertNotNull(features, "Features list should not be null.");
+        assertFalse(features.isEmpty(), "Features list should not be empty.");
+        assertEquals(predefinedNames.stream().distinct().collect(Collectors.toSet()).size(), features.size(), "All feature names should be unique.");
+
+        features.forEach(feature -> {
+            assertNotNull(feature.getName(), "Feature name should not be null");
+            assertFalse(feature.getName().orElse("").isEmpty(), "Feature name should not be empty");
+        });
+
         Result<IFeature> result = featureModel.getFeature("Nonexistent");
         assertFalse(result.isPresent(), "Should indicate that no feature is present for non-existent feature identifiers");
     }
