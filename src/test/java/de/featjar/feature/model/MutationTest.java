@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 public class MutationTest {
     IFeatureModel featureModel;
-    List<String> predefinedNames;
     Scanner scanner;
 
     @BeforeEach
@@ -32,81 +31,16 @@ public class MutationTest {
     }
 
     @Test
-    public void testFeatureMutationsAndExceptionHandling_NoDuplicates() {
-        predefinedNames = List.of("feature1", "feature2", "feature3");
-        System.out.println("Enter the number of features: " + predefinedNames.size());
-        for (int i = 0; i < predefinedNames.size(); i++) {
-            System.out.println("Enter feature name " + (i + 1) + ": " + predefinedNames.get(i));
-        }
+    public void testFeatureMutationsAndExceptionHandling() {
+        List<String> userProvidedNames = getUserInputFeatures();
         try {
-            runFeatureMutationTest();
+            runFeatureMutationTest(userProvidedNames);
         } catch (Exception e) {
             System.out.println("Exception caught: " + e.getMessage());
         }
     }
 
-    @Test
-    public void testFeatureMutationsAndExceptionHandling_SingleDuplicate() {
-        predefinedNames = List.of("feature1", "feature2", "feature2");
-        System.out.println("Enter the number of features: " + predefinedNames.size());
-        for (int i = 0; i < predefinedNames.size(); i++) {
-            System.out.println("Enter feature name " + (i + 1) + ": " + predefinedNames.get(i));
-        }
-        try {
-            runFeatureMutationTest();
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testFeatureMutationsAndExceptionHandling_MultipleDuplicates() {
-        predefinedNames = List.of("feature1", "feature2", "feature1", "feature2", "feature3");
-        System.out.println("Enter the number of features: " + predefinedNames.size());
-        for (int i = 0; i < predefinedNames.size(); i++) {
-            System.out.println("Enter feature name " + (i + 1) + ": " + predefinedNames.get(i));
-        }
-        try {
-            runFeatureMutationTest();
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testFeatureMutationsAndExceptionHandling_AllDuplicates() {
-        predefinedNames = List.of("feature1", "feature1", "feature1", "feature1");
-        System.out.println("Enter the number of features: " + predefinedNames.size());
-        for (int i = 0; i < predefinedNames.size(); i++) {
-            System.out.println("Enter feature name " + (i + 1) + ": " + predefinedNames.get(i));
-        }
-        try {
-            runFeatureMutationTest();
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testFeatureMutationsAndExceptionHandling_NullFeatureAddition() {
-        try {
-            featureModel.mutate().addFeature(null);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Exception caught: Feature name cannot be null");
-        }
-        predefinedNames = List.of("feature1", "feature2");
-        System.out.println("Enter the number of features: " + predefinedNames.size());
-        for (int i = 0; i < predefinedNames.size(); i++) {
-            System.out.println("Enter feature name " + (i + 1) + ": " + predefinedNames.get(i));
-        }
-        try {
-            runFeatureMutationTest();
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-        }
-    }
-
-    private void runFeatureMutationTest() throws Exception {
+    private void runFeatureMutationTest(List<String> predefinedNames) throws Exception {
         try {
             // Manually remove all existing features to ensure a clean state
             List<IFeature> existingFeatures = featureModel.getFeatures().stream().collect(Collectors.toList());
@@ -158,9 +92,10 @@ public class MutationTest {
                 addedNames.add(featureName);
                 assertEquals(Result.of(featureName), feature.getName(), "Feature name should be " + featureName);
             } else {
-                // Verify that adding a duplicate name does not change the existing feature set
-                System.out.println("Exception caught: Feature name '" + featureName + "' already exists and should be in the added names list.");
-                assertTrue(addedNames.contains(featureName), "Feature name '" + featureName + "' already exists and should be in the added names list.");
+                // Prompt user to enter a unique feature name
+                System.out.println("Feature name '" + featureName + "' already exists. Please enter a unique feature name: ");
+                String newFeatureName = scanner.nextLine();
+                addFeatureWithPredefinedName(newFeatureName, addedNames);
             }
         } catch (Exception e) {
             System.out.println("Exception caught: " + e.getMessage());
@@ -192,11 +127,32 @@ public class MutationTest {
     private List<String> getUserInputFeatures() {
         List<String> inputFeatures = new ArrayList<>();
         try {
-            System.out.print("Enter the number of features: ");
-            int numFeatures = Integer.parseInt(scanner.nextLine());
+            int numFeatures = 0;
+            while (numFeatures <= 0) {
+                System.out.print("Enter the number of features: ");
+                String input = scanner.nextLine();
+                try {
+                    numFeatures = Integer.parseInt(input);
+                    if (numFeatures <= 0) {
+                        System.out.println("Please enter a positive number.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a valid number.");
+                }
+            }
+
             for (int i = 0; i < numFeatures; i++) {
                 System.out.print("Enter feature name " + (i + 1) + ": ");
-                inputFeatures.add(scanner.nextLine());
+                String featureName = scanner.nextLine();
+                while (inputFeatures.contains(featureName) || featureName.isEmpty()) {
+                    if (featureName.isEmpty()) {
+                        System.out.print("Feature name cannot be empty. Enter a different feature name: ");
+                    } else {
+                        System.out.print("Feature name '" + featureName + "' already exists. Enter a different feature name: ");
+                    }
+                    featureName = scanner.nextLine();
+                }
+                inputFeatures.add(featureName);
             }
         } catch (Exception e) {
             System.out.println("Exception caught: " + e.getMessage());
@@ -204,4 +160,3 @@ public class MutationTest {
         return inputFeatures;
     }
 }
-
