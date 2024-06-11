@@ -102,6 +102,7 @@ public class FeatureModelTest {
         Assertions.assertTrue(featureModel.hasConstraint(constraint3));
     }
 
+    
     @Test
     public void featureModelFeatureTreeMixin() {
         IFeature rootFeature = featureModel.mutate().addFeature("root");

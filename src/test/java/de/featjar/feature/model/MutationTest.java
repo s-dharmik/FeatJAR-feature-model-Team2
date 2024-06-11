@@ -1,128 +1,78 @@
 package de.featjar.feature.model;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.featjar.base.data.Result;
-import de.featjar.base.data.identifier.Identifiers;
-import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
+import de.featjar.base.data.identifier.UUIDIdentifier;
+import de.featjar.feature.model.FeatureModel;
 import de.featjar.feature.model.IFeature;
-import de.featjar.feature.model.IFeatureTree;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import de.featjar.feature.model.IFeatureModel;
+import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Tests for Mutation and Error Handling 
  *
- * author Ananya
+ * @author Ananya
+ *
  */
 
 
 public class MutationTest {
-    IFeatureModel featureModel;
-    Scanner scanner;
+
+    private IFeatureModel featureModel;
+    private List<String> predefinedFeatures;
 
     @BeforeEach
-    public void setup() {
-        featureModel = new FeatureModel(Identifiers.newCounterIdentifier());
-        scanner = new Scanner(System.in);
+    public void setUp() {
+        featureModel = new FeatureModel(UUIDIdentifier.newInstance());
+        predefinedFeatures = new ArrayList<>();
+        predefinedFeatures.add("Feature1");
+        predefinedFeatures.add("Feature2");
+        predefinedFeatures.add("Feature3");
     }
 
     @Test
-    public void testFeatureMutationsAndExceptionHandling() {
-        List<String> userProvidedNames = getUserInputFeatures();
-        try {
-            runFeatureMutationTest(userProvidedNames);
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-        }
+    public void testAddNewFeature() {
+       
+        Scanner scanner = new Scanner(System.in);
+        String newFeatureName = getValidFeatureName(scanner);
+
+        assertFalse(newFeatureName.isEmpty(), "Feature name should not be empty");
+
+        assertFalse(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
+
+        IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
+        IFeature newFeature = mutableFeatureModel.addFeature(newFeatureName);
+
+        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature));
+
+        assertEquals(newFeatureName, newFeature.getName().get());
+
+        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
+        System.out.println("New feature added successfully: " + newFeatureName);
     }
 
-    private void runFeatureMutationTest(List<String> predefinedNames) throws Exception {
-        List<IFeature> existingFeatures = featureModel.getFeatures().stream().collect(Collectors.toList());
-        IMutableFeatureModel mutableFeatureModel = featureModel.mutate();
-        for (IFeature feature : existingFeatures) {
-            mutableFeatureModel.removeFeature(feature);
-        }
+    private String getValidFeatureName(Scanner scanner) {
+        System.out.println("Enter the name of the new feature: ");
+        String newFeatureName = scanner.nextLine();
 
-        List<String> addedNames = new ArrayList<>();
-        for (String name : predefinedNames) {
-            addFeatureWithPredefinedName(name, addedNames);
-        }
-
-        List<IFeature> features = featureModel.getFeatures().stream().collect(Collectors.toList());
-        int expectedFeatureCount = (int) predefinedNames.stream().distinct().count();
-        assertEquals(expectedFeatureCount, features.size(), "The number of features in the model should match the number of unique predefined names.");
-
-        predefinedNames.stream().distinct().forEach(name -> {
-            boolean exists = features.stream().anyMatch(f -> f.getName().orElse("").equals(name));
-            assertTrue(exists, "Feature '" + name + "' should exist");
-        });
-
-        
-        assertNotNull(features, "Features list should not be null.");
-        assertFalse(features.isEmpty(), "Features list should not be empty.");
-        assertEquals(predefinedNames.stream().distinct().collect(Collectors.toSet()).size(), features.size(), "All feature names should be unique.");
-
-        features.forEach(feature -> {
-            assertNotNull(feature.getName(), "Feature name should not be null");
-            assertFalse(feature.getName().orElse("").isEmpty(), "Feature name should not be empty");
-        });
-
-        Result<IFeature> result = featureModel.getFeature("Nonexistent");
-        assertFalse(result.isPresent(), "Should indicate that no feature is present for non-existent feature identifiers");
-    }
-
-    private void addFeatureWithPredefinedName(String featureName, List<String> addedNames) {
-        if (isFeatureNameUnique(featureName)) {
-            IFeature feature = featureModel.mutate().addFeature(featureName);
-            feature.mutate().setName(featureName);
-            addedNames.add(featureName);
-            assertEquals(Result.of(featureName), feature.getName(), "Feature name should be " + featureName);
-        } else {
-            System.out.println("Feature name '" + featureName + "' already exists. Please enter a unique feature name: ");
-            String newFeatureName = scanner.nextLine();
-            addFeatureWithPredefinedName(newFeatureName, addedNames);
-        }
-    }
-
-    private boolean isFeatureNameUnique(String featureName) {
-        return featureModel.getFeatures().stream()
-                .noneMatch(feature -> feature.getName().orElse("").equals(featureName));
-    }
-
-    private List<String> getUserInputFeatures() {
-        List<String> inputFeatures = new ArrayList<>();
-        int numFeatures = 0;
-        while (numFeatures <= 0) {
-            System.out.print("Enter the number of features: ");
-            String input = scanner.nextLine();
-            try {
-                numFeatures = Integer.parseInt(input);
-                if (numFeatures <= 0) {
-                    System.out.println("Please enter a positive number.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+        while (newFeatureName.isEmpty() || isFeatureNameConflict(newFeatureName)) {
+            if (newFeatureName.isEmpty()) {
+                System.out.println("Feature name cannot be empty. Please enter a different name: ");
+            } else {
+                System.out.println("Feature name conflicts with a predefined or existing feature. Please enter a different name: ");
             }
+            newFeatureName = scanner.nextLine();
         }
 
-        for (int i = 0; i < numFeatures; i++) {
-            System.out.print("Enter feature name " + (i + 1) + ": ");
-            String featureName = scanner.nextLine();
-            while (inputFeatures.contains(featureName) || featureName.isEmpty()) {
-                if (featureName.isEmpty()) {
-                    System.out.print("Feature name cannot be empty. Enter a different feature name: ");
-                } else {
-                    System.out.print("Feature name '" + featureName + "' already exists. Enter a different feature name: ");
-                }
-                featureName = scanner.nextLine();
-            }
-            inputFeatures.add(featureName);
-        }
-        return inputFeatures;
+        return newFeatureName;
+    }
+
+    private boolean isFeatureNameConflict(String featureName) {
+        return predefinedFeatures.contains(featureName) || featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(featureName));
     }
 }
