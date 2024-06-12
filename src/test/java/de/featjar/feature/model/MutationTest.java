@@ -1,4 +1,5 @@
 package de.featjar.feature.model;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import de.featjar.base.data.identifier.UUIDIdentifier;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Tests for Mutation and Error Handling 
@@ -20,6 +20,15 @@ import java.util.Scanner;
  *
  */
 
+
+/**
+ * Updating unit tests for automatic feature addition in the feature model
+ * Modified the testAddNewFeature() method to add a new feature automatically.
+ * Removed the use of Scanner for user input.
+ * Implemented getUniqueFeatureName() to generate unique feature names.
+ * Ensured the method checks for conflicts with predefined or existing features.
+ * Used isFeatureNameConflict(String featureName) to verify if a feature name already exists.
+ */
 
 public class MutationTest {
 
@@ -33,40 +42,35 @@ public class MutationTest {
         predefinedFeatures.add("Feature1");
         predefinedFeatures.add("Feature2");
         predefinedFeatures.add("Feature3");
+        predefinedFeatures.add("Feature4");
+   //     predefinedFeatures.add("Feature5");
     }
 
     @Test
     public void testAddNewFeature() {
-       
-        Scanner scanner = new Scanner(System.in);
-        String newFeatureName = getValidFeatureName(scanner);
+        String newFeatureName = getUniqueFeatureName();
 
         assertFalse(newFeatureName.isEmpty(), "Feature name should not be empty");
-
-        assertFalse(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
+        assertFalse(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)), "Feature name already exists");
 
         IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
         IFeature newFeature = mutableFeatureModel.addFeature(newFeatureName);
 
-        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature));
+        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature), "New feature not added to the model");
+        assertEquals(newFeatureName, newFeature.getName().get(), "Feature name mismatch after addition");
+        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)), "Feature not found in the model after addition");
 
-        assertEquals(newFeatureName, newFeature.getName().get());
-
-        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
         System.out.println("New feature added successfully: " + newFeatureName);
     }
 
-    private String getValidFeatureName(Scanner scanner) {
-        System.out.println("Enter the name of the new feature: ");
-        String newFeatureName = scanner.nextLine();
+    private String getUniqueFeatureName() {
+        String baseName = "Feature";
+        int suffix = 4;
+        String newFeatureName = baseName + suffix;
 
-        while (newFeatureName.isEmpty() || isFeatureNameConflict(newFeatureName)) {
-            if (newFeatureName.isEmpty()) {
-                System.out.println("Feature name cannot be empty. Please enter a different name: ");
-            } else {
-                System.out.println("Feature name conflicts with a predefined or existing feature. Please enter a different name: ");
-            }
-            newFeatureName = scanner.nextLine();
+        while (isFeatureNameConflict(newFeatureName)) {
+            suffix++;
+            newFeatureName = baseName + suffix;
         }
 
         return newFeatureName;

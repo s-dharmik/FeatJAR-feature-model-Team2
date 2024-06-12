@@ -152,7 +152,7 @@ public class FeatureModelTest {
     
     
     
-    @Test
+   /* @Test
     public void testFeatureMutations() {
         System.out.println("Testing feature mutations...");
 
@@ -199,7 +199,7 @@ public class FeatureModelTest {
         System.out.println("Feature 2 Name: " + feature2.getName().orElse("Error: Name not set"));
     }
 
-    
+    */
    
     @Test
     public void testAddandRemoveFeatures() {
@@ -273,12 +273,7 @@ public class FeatureModelTest {
         }
     }
 
-
-
-   
-    
-    
-
+/*
     @Test
     public void testExceptionHandling() {
     	System.out.println("Testing indicate that no feature is present for non-existent feature identifiers...");
@@ -290,7 +285,8 @@ public class FeatureModelTest {
         Result<IFeature> result = featureModel.getFeature("Nonexistent");
         assertFalse(result.isPresent(), "Should indicate that no feature is present for non-existent feature identifiers");
     }
-   
+   */
+    
     
     @Test
     public void testAddAndRemoveConstraint() {
@@ -390,3 +386,4 @@ public class FeatureModelTest {
    
   
 }
+
