@@ -20,11 +20,13 @@
  */
 package de.featjar.feature.model;
 
-import de.featjar.base.data.*;
+import java.util.LinkedHashSet;
+
+import de.featjar.base.data.Result;
+import de.featjar.base.data.Sets;
 import de.featjar.feature.model.mixins.IHasCommonAttributes;
 import de.featjar.formula.structure.formula.IFormula;
 import de.featjar.formula.structure.term.value.Variable;
-import java.util.LinkedHashSet;
 
 /**
  * A constraint describes some restriction on the valid configurations represented by a {@link FeatureModel}.

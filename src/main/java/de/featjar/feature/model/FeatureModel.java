@@ -44,6 +44,7 @@ import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 import de.featjar.formula.structure.formula.IFormula;
 
+
 public class FeatureModel implements IMutableFeatureModel, IMutatableAttributable, IFeatureModel {
 
     protected final IIdentifier identifier;

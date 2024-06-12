@@ -20,7 +20,6 @@
  */
 package de.featjar.feature.model.io.xml;
 
-import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -31,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -302,7 +300,6 @@ public class XMLFeatureModelFormat extends AXMLFeatureModelFormat<IFeatureModel,
         if (description != null) {
             description = description.replaceAll("(\r\n|\r|\n)\\s*", "\n").replaceAll("\\A\n|\n\\Z", "");
         }
-        
         return description;
     }
 

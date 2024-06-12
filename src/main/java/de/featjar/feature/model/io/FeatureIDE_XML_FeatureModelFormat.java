@@ -75,7 +75,8 @@ public class FeatureIDE_XML_FeatureModelFormat implements IFormat<IFeatureModel>
     		Element childElement = (Element) childNodeList.item(i);
     		IFeature childFeature = createFeature(featureModel, childElement);
     		tree.mutate().addChild(tree);
-    		createFeatureTree(featureModel, childElement, childFeature.getFeatureTree());
+    		
+    		createFeatureTree(featureModel, childElement, childFeature.getFeatureTree().orElseThrow());
     		
     		
     	}

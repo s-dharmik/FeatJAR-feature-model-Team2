@@ -20,6 +20,10 @@
  */
 package de.featjar.feature.model.transformer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import de.featjar.base.computation.AComputation;
 import de.featjar.base.computation.Dependency;
 import de.featjar.base.computation.IComputation;
@@ -40,9 +44,6 @@ import de.featjar.formula.structure.formula.connective.Implies;
 import de.featjar.formula.structure.formula.connective.Reference;
 import de.featjar.formula.structure.formula.predicate.Literal;
 import de.featjar.formula.structure.term.value.Variable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Transforms a feature model into a boolean formula.

@@ -20,11 +20,12 @@
  */
 package de.featjar.feature.model;
 
+import java.util.LinkedHashSet;
+
 import de.featjar.base.data.Sets;
 import de.featjar.base.tree.Trees;
 import de.featjar.feature.model.IConstraint.IMutableConstraint;
 import de.featjar.formula.structure.formula.IFormula;
-import java.util.LinkedHashSet;
 
 public class Constraint extends AFeatureModelElement implements IMutableConstraint {
     protected IFormula formula;
