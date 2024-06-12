@@ -52,7 +52,7 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
 
     protected final LinkedHashMap<IAttribute<?>, Object> attributeValues;
 
-	private boolean shouldDeleteRootFeatureFlag;
+	private boolean shouldDeleteRootFeatureFlag; //sarthak
 
 	private IFeature rootFeature;		//sarthak
 
@@ -61,6 +61,8 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
     }
 
     
+    
+    //sarthak
    
     public FeatureModel(IIdentifier identifier) {
         this.identifier = Objects.requireNonNull(identifier);
@@ -297,6 +299,7 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
             return false; // Handle case where the feature has no associated tree (safety check)
         }
 
+        
         IFeatureTree featureTree = maybeFeatureTree.get();
 
         // Determine if the feature is a root
