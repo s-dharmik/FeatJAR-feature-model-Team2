@@ -13,6 +13,7 @@ import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 
 /**
  * Tests for Mutation and Error Handling
+ * @author ananyaks
  * 
  */
 public class MutationTest {
