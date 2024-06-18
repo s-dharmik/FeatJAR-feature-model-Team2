@@ -244,11 +244,17 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
         Objects.requireNonNull(constraint);
         return constraints.remove(constraint.getIdentifier()) != null;
     }
+    
 
     @Override
     public IFeature addFeature(String name) {
     	if (name == null) {
             throw new IllegalArgumentException("Feature name cannot be null");
+        }
+    	
+    	//@ananyaks
+    	if (features.values().stream().anyMatch(f -> f.getName().valueEquals(name))) {
+            throw new IllegalArgumentException("Feature name conflicts with a predefined or existing feature.");
         }
         Objects.requireNonNull(name);
         Feature feature = new Feature(this);

@@ -14,10 +14,7 @@ import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 /**
  * Tests for Mutation and Error Handling
  * 
- * @author ananyaks
- *
  */
-
 public class MutationTest {
 
     private IFeatureModel featureModel;
@@ -29,20 +26,23 @@ public class MutationTest {
         featureModel.mutate().addFeature("Feature2");
     }
 
+    private void addNewFeature(String featureName) {
+        assertFalse(featureName.isEmpty(), "Feature name should not be empty");
+
+        IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
+        IFeature newFeature = mutableFeatureModel.addFeature(featureName);
+
+        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature));
+        assertEquals(featureName, newFeature.getName().get());
+        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(featureName)));
+
+        System.out.println("New feature added successfully: " + featureName);
+    }
+
     @Test
     public void testAddNewFeature() {
         String newFeatureName = "Feature3"; // Unique name
-
-        assertFalse(newFeatureName.isEmpty(), "Feature name should not be empty");
-
-        IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
-        IFeature newFeature = mutableFeatureModel.addFeature(newFeatureName);
-
-        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature));
-        assertEquals(newFeatureName, newFeature.getName().get());
-        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
-
-        System.out.println("New feature added successfully: " + newFeatureName);
+        addNewFeature(newFeatureName);
     }
 
     @Test
@@ -52,12 +52,15 @@ public class MutationTest {
         assertFalse(duplicateFeatureName.isEmpty(), "Feature name should not be empty");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            if (featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(duplicateFeatureName))) {
-                throw new IllegalArgumentException("Feature name conflicts with a predefined or existing feature.");
-            }
+            IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
+            mutableFeatureModel.addFeature(duplicateFeatureName);
         });
 
         assertEquals("Feature name conflicts with a predefined or existing feature.", exception.getMessage());
         System.out.println(exception.getMessage());
+
+        // Execute testAddNewFeature within testAddDuplicateFeature
+        System.out.println("Attempting to add a new unique feature after handling duplicate");
+        testAddNewFeature();
     }
 }
