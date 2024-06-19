@@ -232,11 +232,15 @@ public class FeatureModelTest {
 
     @Test
     public void testMoveChildBelowGrandchildShouldFail() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
+    	IFeature rootFeature = featureModel.mutate().addFeature("root");
+    	// Create an instance of a class that implements IFeatureTree to use its methods
+        IFeatureTree root = featureModel.mutate().addFeatureTreeRoot(rootFeature);
 
         // Manually create the tree structure as the createTree method is not static
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
+        IFeature child1 = featureModel.mutate().addFeature("Child1");
+        IFeatureTree childeNode1 = root.mutate().addFeatureBelow(child1);
+        
+        // TODO fix this!
         IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
         IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
         IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
