@@ -23,6 +23,10 @@ package de.featjar.feature.model;
 import de.featjar.base.data.Result;
 import de.featjar.feature.model.IFeature.IMutableFeature;
 
+
+
+
+
 public class Feature extends AFeatureModelElement implements IMutableFeature {
     protected Class<?> type;
 
