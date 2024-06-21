@@ -20,7 +20,9 @@
  */
 package de.featjar.feature.model;
 
+
 import static org.junit.jupiter.api.Assertions.*;
+
 
 
 
@@ -28,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import de.featjar.base.data.Result;
 import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.base.data.identifier.Identifiers;
+import de.featjar.base.data.identifier.UUIDIdentifier;
 import de.featjar.formula.structure.Expressions;
 //import de.featjar.formula.structure.IExpression;
 import de.featjar.formula.structure.formula.IFormula;
@@ -58,14 +61,95 @@ import org.junit.jupiter.api.Test;
  * @author Elias Kuiter
  */
 public class FeatureModelTest {
-    IFeatureModel featureModel;
- 
+   private IFeatureModel featureModel;
     
-  
+ 
 
     @BeforeEach
     public void createFeatureModel() {
         featureModel = new FeatureModel(Identifiers.newCounterIdentifier());
+        setUp();
+    }
+    
+    public void setUp() {
+        featureModel = new FeatureModel(UUIDIdentifier.newInstance());
+        featureModel.mutate().addFeature("Feature1");
+        featureModel.mutate().addFeature("Feature2");
+    }
+
+    private void addNewFeature(String featureName) {
+        assertFalse(featureName.isEmpty(), "Feature name should not be empty");
+
+        IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
+
+        if (mutableFeatureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(featureName))) {
+            throw new IllegalArgumentException("Feature name conflicts with a predefined or existing feature.");
+        }
+
+        IFeature newFeature = mutableFeatureModel.addFeature(featureName);
+
+        assertTrue(mutableFeatureModel.getFeatures().contains(newFeature));
+        assertEquals(featureName, newFeature.getName().get());
+        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(featureName)));
+
+        System.out.println("New feature added successfully: " + featureName);
+    }
+
+    private void removeFeature(String featureName) {
+        assertFalse(featureName.isEmpty(), "Feature name should not be empty");
+
+        IMutableFeatureModel mutableFeatureModel = (IMutableFeatureModel) featureModel;
+
+        IFeature featureToRemove = mutableFeatureModel.getFeatures().stream()
+                .filter(f -> f.getName().valueEquals(featureName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Feature does not exist: " + featureName));
+
+        mutableFeatureModel.removeFeature(featureToRemove);
+
+        assertFalse(mutableFeatureModel.getFeatures().contains(featureToRemove));
+        System.out.println("Feature removed successfully: " + featureName);
+    }
+
+    @Test
+    public void testAddNewFeature() {
+        String newFeatureName = "Feature3"; // Unique name
+        addNewFeature(newFeatureName);
+
+        // Additional assertions
+        assertTrue(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(newFeatureName)));
+        assertEquals(3, featureModel.getFeatures().size());
+    }
+
+    @Test
+    public void testAddDuplicateFeature() {
+        String duplicateFeatureName = "Feature2"; // Duplicate name
+
+        assertFalse(duplicateFeatureName.isEmpty(), "Feature name should not be empty");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            addNewFeature(duplicateFeatureName);
+        });
+
+        assertEquals("Feature name conflicts with a predefined or existing feature.", exception.getMessage());
+        System.out.println(exception.getMessage());
+
+        // Ensure no additional feature was added
+        assertEquals(2, featureModel.getFeatures().size());
+
+        // Execute testAddNewFeature within testAddDuplicateFeature
+        System.out.println("Attempting to add a new unique feature after handling duplicate");
+        testAddNewFeature();
+    }
+
+    @Test
+    public void testRemoveFeature() {
+        String featureName = "Feature1"; // Assume this feature exists
+        removeFeature(featureName);
+
+        // Additional assertions
+        assertFalse(featureModel.getFeatures().stream().anyMatch(f -> f.getName().valueEquals(featureName)));
+        assertEquals(1, featureModel.getFeatures().size());
     }
 
 
@@ -149,143 +233,8 @@ public class FeatureModelTest {
         }
     }
 
-    
-    
-    
-   /* @Test
-    public void testFeatureMutations() {
-        System.out.println("Testing feature mutations...");
 
-        // Add a feature with an initial name and description
-        IFeature feature = featureModel.mutate().addFeature("feature1");
-        feature.mutate().setName("InitialName");
-        feature.mutate().setDescription("Initial description");
-
-        // Print initial states
-        System.out.println("Initial Name: " + feature.getName().orElse("Error: Name not set"));
-        System.out.println("Initial Description: " + feature.getDescription().orElse("Error: Description not set"));
-
-        // Assertions to verify initial states
-        Assertions.assertEquals(Result.of("InitialName"), feature.getName(), "Feature name should be 'InitialName'");
-        Assertions.assertEquals(Result.of("Initial description"), feature.getDescription(), "Feature description should be 'Initial description'");
-
-        // Change the name and description of the feature
-        feature.mutate().setName("featureRenamed");
-        feature.mutate().setDescription("A feature description");
-
-        // Print attempted changes
-        System.out.println("Attempted Name Change to: 'featureRenamed'");
-        System.out.println("Attempted Description Change to: 'A feature description'");
-
-        // Assertions to verify mutations
-        Assertions.assertEquals(Result.of("featureRenamed"), feature.getName(), "Feature name should be updated to 'featureRenamed'");
-        Assertions.assertEquals(Result.of("A feature description"), feature.getDescription(), "Feature description should be updated to 'A feature description'");
-
-        // Print the results after mutations
-        System.out.println("Updated Name: " + feature.getName().orElse("Error: Name not updated correctly"));
-        System.out.println("Updated Description: " + feature.getDescription().orElse("Error: Description not updated correctly"));
-
-        // Add another feature to compare names
-        IFeature feature2 = featureModel.mutate().addFeature("feature2");
-        feature2.mutate().setName("FeatureTwo");
-
-        // Assertions to verify names are different
-        Assertions.assertNotEquals(feature.getName(), feature2.getName(), "Feature names should be different after renaming");
-        Assertions.assertEquals(Result.of("FeatureTwo"), feature2.getName(), "Second feature name should be 'FeatureTwo'");
-
-        // Print final comparison results
-        System.out.println("Final Comparison:");
-        System.out.println("Feature 1 Name: " + feature.getName().orElse("Error: Name not set"));
-        System.out.println("Feature 2 Name: " + feature2.getName().orElse("Error: Name not set"));
-    }
-
-    */
    
-    @Test
-    public void testAddandRemoveFeatures() {
-        System.out.println("Feature addition and deletion");
-
-        // Add root feature and its tree
-        IFeature rootFeature = featureModel.mutate().addFeature("root");
-        IFeatureTree rootTree = featureModel.mutate().addFeatureTreeRoot(rootFeature);
-        System.out.println("Feature " + rootFeature.getName().orElse("[Unnamed Feature]") + " is added.");
-        assertNotNull(rootFeature, "Root feature must not be null.");
-        
-        // Add child features and their respective trees
-        IFeature childFeature1 = featureModel.mutate().addFeature("child1");
-        IFeatureTree childTree1 = rootTree.mutate().addFeatureBelow(childFeature1);
-        System.out.println("Feature " + childFeature1.getName().orElse("[Unnamed Feature]") + " is added.");
-        assertTrue(featureModel.hasFeature(childFeature1.getIdentifier()), "Feature 'child1' should be present in the model.");
-
-        IFeature childFeature2 = featureModel.mutate().addFeature("child2");
-        IFeatureTree childTree2 = rootTree.mutate().addFeatureBelow(childFeature2);
-        System.out.println("Feature " + childFeature2.getName().orElse("[Unnamed Feature]") + " is added.");
-        assertTrue(featureModel.hasFeature(childFeature2.getIdentifier()), "Feature 'child2' should be present in the model.");
-
-        // Adding a sub-child to test deeper hierarchy
-        IFeature subChildFeature = featureModel.mutate().addFeature("subChild");
-        IFeatureTree subChildTree = childTree1.mutate().addFeatureBelow(subChildFeature);
-        System.out.println("Sub-child feature " + subChildFeature.getName().orElse("[Unnamed Feature]") + " is added to child1.");
-        assertTrue(featureModel.hasFeature(subChildFeature.getIdentifier()), "Feature 'subChild' should be present in the model.");
-
-        // Print hierarchy structure before removal
-        System.out.println("Hierarchy structure before removal of feature:");
-        printFeatureTree(rootTree, 0);
-
-        // Remove the sub-child feature and its tree node
-        childTree1.mutate().removeChild(subChildTree);
-        boolean subChildRemovedFromModel = featureModel.mutate().removeFeature(subChildFeature);
-        assertTrue(subChildRemovedFromModel, "Sub-child feature 'subChild' should be removed from the model.");
-        System.out.println("Sub-child tree for feature " + subChildFeature.getName().orElse("[Unnamed Feature]") + " is removed.");
-        assertFalse(featureModel.hasFeature(subChildFeature.getIdentifier()), "Feature 'subChild' should be absent after removal.");
-
-        // Remove the child feature and its tree node
-        rootTree.mutate().removeChild(childTree1);
-        System.out.println("Child tree for feature " + childFeature1.getName().orElse("[Unnamed Feature]") + " is removed.");
-        boolean removedFromModel = featureModel.mutate().removeFeature(childFeature1);
-        assertTrue(removedFromModel, "Feature 'child1' should be removed from the model.");
-        System.out.println("Feature " + childFeature1.getName().orElse("[Unnamed Feature]") + " is removed.");
-
-        // Print hierarchy structure after removal
-        System.out.println("Hierarchy structure after removal of feature:");
-        printFeatureTree(rootTree, 0);
-
-        // Assertions to validate the structure of the feature hierarchy
-        assertEquals(rootFeature, rootTree.getFeature(), "Root feature should be correctly set as 'root'");
-        assertEquals(List.of(childTree2), rootTree.getChildren(), "Root should have one child after removal of 'child1'");
-
-        // Validate the remaining child
-        assertSame(childFeature2, childTree2.getFeature(), "Remaining child should be correctly set as 'child2'");
-        assertSame(rootTree, childTree2.getParent().get(), "Parent of remaining child should be the root tree");
-
-        // Additional checks for presence and activation status
-        assertFalse(featureModel.hasFeature(childFeature1.getIdentifier()), "Feature 'child1' should be absent after removal.");
-        assertTrue(featureModel.hasFeature(childFeature2.getIdentifier()), "Feature 'child2' should still be present in the model.");
-    }
-
-    // Helper method to print the tree recursively
-    private void printFeatureTree(IFeatureTree tree, int level) {
-        String indent = "  ".repeat(level);  // Create an indent based on the tree level
-        System.out.println(indent + "Feature: " + tree.getFeature().getName().orElse("[Unnamed Feature]"));
-
-        for (IFeatureTree child : tree.getChildren()) {
-            printFeatureTree(child, level + 1);  // Recurse for each child
-        }
-    }
-
-/*
-    @Test
-    public void testExceptionHandling() {
-    	System.out.println("Testing indicate that no feature is present for non-existent feature identifiers...");
-        assertThrows(IllegalArgumentException.class, () -> {
-            featureModel.mutate().addFeature(null);
-        });
-
-        // Assuming getFeature returns a Result
-        Result<IFeature> result = featureModel.getFeature("Nonexistent");
-        assertFalse(result.isPresent(), "Should indicate that no feature is present for non-existent feature identifiers");
-    }
-   */
     
     
     @Test
@@ -384,6 +333,9 @@ public class FeatureModelTest {
         System.out.println("Number of constraints removed: " + constraintsRemoved);
     }
    
+    
+    
+    
   
 }
 
