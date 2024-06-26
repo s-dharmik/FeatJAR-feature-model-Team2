@@ -20,7 +20,7 @@ public class DimacsFeatureModelFormatTest {
     @Test
     public void testSerialization() throws IOException, ParseException {
         // Constructing the path relative to the project root
-        Path inputFilePath = Paths.get("src/test/java/formats/DIMACS/empty-ABC_01.dimacs");
+        Path inputFilePath = Paths.get("src/test/java/formats/DIMACS/nAB_01.dimacs");
         
         DimacsFeatureModelFormat format = new DimacsFeatureModelFormat();
         Result<IFeatureModel> fm = IO.load(inputFilePath, format);
