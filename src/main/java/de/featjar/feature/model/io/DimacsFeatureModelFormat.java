@@ -7,10 +7,15 @@ import de.featjar.base.data.Result;
 import de.featjar.base.io.format.IFormat;
 import de.featjar.base.io.format.ParseException;
 import de.featjar.base.io.input.AInputMapper;
+import de.featjar.feature.model.FeatureModel;
+import de.featjar.feature.model.IConstraint;
+import de.featjar.feature.model.IFeature;
 import de.featjar.feature.model.IFeatureModel;
 import de.featjar.formula.io.dimacs.FormulaDimacsParser;
+import de.featjar.formula.structure.IExpression;
 import de.featjar.formula.structure.formula.IFormula;
 import de.featjar.formula.structure.formula.connective.Or;
+import de.featjar.formula.structure.formula.predicate.Literal;
 import de.featjar.formula.structure.term.value.Variable;
 
 public class DimacsFeatureModelFormat implements IFormat<IFeatureModel> {
@@ -23,14 +28,14 @@ public class DimacsFeatureModelFormat implements IFormat<IFeatureModel> {
         int variableCount = 1;
         
         // Serialize features
-        for (String feature : featureModel.getFeatures()) {
+        for (IFeature feature : featureModel.getFeatures()) {
             if (!variableMap.containsKey(feature)) {
-                variableMap.put(feature, variableCount++);
+                variableMap.put(getFileExtension(), variableCount++);
             }
         }
         
         // Serialize constraints
-        for (IFormula constraint : featureModel.getConstraints()) {
+        for (IConstraint constraint : featureModel.getConstraints()) {
             writeClause(sb, constraint, variableMap);
         }
 
@@ -38,10 +43,10 @@ public class DimacsFeatureModelFormat implements IFormat<IFeatureModel> {
         return Result.of(sb.toString());
     }
 
-    private void writeClause(StringBuilder sb, IFormula formula, Map<String, Integer> variableMap) {
-        if (formula instanceof Or) {
-            Or or = (Or) formula;
-            for (IFormula child : or.getChildren()) {
+    private void writeClause(StringBuilder sb, IConstraint constraint, Map<String, Integer> variableMap) {
+        if (constraint instanceof Or) {
+            Or or = (Or) constraint;
+            for (IExpression child : or.getChildren()) {
                 if (child instanceof Variable) {
                     Variable var = (Variable) child;
                     sb.append(variableMap.get(var.getName())).append(" ");
@@ -55,8 +60,7 @@ public class DimacsFeatureModelFormat implements IFormat<IFeatureModel> {
     public Result<IFeatureModel> parse(AInputMapper inputMapper) {
         FormulaDimacsParser parser = new FormulaDimacsParser();
         try {
-        	
-            IFormula formula = parser.parse(inputMapper.get().getNonEmptyLineIterator()).orElseThrow();
+        	IFormula formula = parser.parse(inputMapper.get().getNonEmptyLineIterator());
             IFeatureModel featureModel = convertToFeatureModel(formula);
             return Result.of(featureModel);
         } catch (Exception e) {
@@ -65,10 +69,35 @@ public class DimacsFeatureModelFormat implements IFormat<IFeatureModel> {
     }
 
     private IFeatureModel convertToFeatureModel(IFormula formula) {
-        // Convert the formula into a feature model
-        // This requires creating features and constraints from the parsed formula
-        // Implementation depends on how the IFeatureModel and related classes are structured
-        return null;
+        FeatureModel featureModel = new FeatureModel();
+        Map<Integer, IFeature> featureMap = new HashMap<>();
+        
+        // Assume each clause represents a constraint or feature relationship
+        for (IExpression clause : formula.getChildren()) {
+            if (clause instanceof Or) {
+                Or orClause = (Or) clause;
+                for (IExpression expr : orClause.getChildren()) {
+                    if (expr instanceof Literal) {
+                        Literal literal = (Literal) expr;
+                        int varIndex = Integer.parseInt(literal.getName());
+                        boolean isPositive = literal.isPositive();
+
+                        // Create or get the feature
+                        IFeature feature = featureMap.computeIfAbsent(varIndex, idx -> featureModel.addFeature("Feature" + idx));
+                        
+                        // Add to the feature model
+                        if (isPositive) {
+                            featureModel.addFeature(getName());
+                        } else {
+                            // Handle negative literals as constraints or special cases
+                            featureModel.addConstraint((IFormula) feature);
+                        }
+                    }
+                }
+            }
+        }
+
+        return featureModel;
     }
 
     @Override

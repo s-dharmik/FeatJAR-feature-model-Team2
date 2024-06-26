@@ -31,7 +31,7 @@ public class Constraint extends AFeatureModelElement implements IMutableConstrai
     protected IFormula formula;
     protected final LinkedHashSet<IFeature> containedFeaturesCache = Sets.empty();
 
-    protected Constraint(IFeatureModel featureModel, IFormula formula) {
+    public Constraint(IFeatureModel featureModel, IFormula formula) {
         super(featureModel);
         setFormula(formula);
     }
