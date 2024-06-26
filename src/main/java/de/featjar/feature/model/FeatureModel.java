@@ -30,7 +30,7 @@ import de.featjar.base.data.identifier.UUIDIdentifier;
 import de.featjar.base.tree.Trees;
 import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
-import de.featjar.formula.structure.IFormula;
+import de.featjar.formula.structure.formula.IFormula;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -349,6 +349,46 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
 			
 		}
 
+
+
+
+
+//		@Override
+//		public IConstraint addConstraint(de.featjar.feature.model.IFormula formula) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//
+//
+//
+//
+//
+//		@Override
+//		public IConstraint addConstraint(de.featjar.feature.model.IFormula formula) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//
+//
+//
+//
+//
+//		@Override
+//		public IConstraint addConstraint(de.featjar.feature.model.IFormula formula) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//
+//
+//
+//
+//
+//		@Override
+//		public IConstraint addConstraint(de.featjar.feature.model.IFormula formula) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//
 
 		
 

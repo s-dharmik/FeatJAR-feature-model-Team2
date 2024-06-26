@@ -20,17 +20,43 @@
  */
 package de.featjar.feature.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.featjar.base.data.Result;
 import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.base.data.identifier.Identifiers;
+import de.featjar.base.data.identifier.UUIDIdentifier;
+import de.featjar.base.tree.Trees;
+import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.formula.structure.Expressions;
+//import de.featjar.formula.structure.IExpression;
+import de.featjar.formula.structure.formula.IFormula;
+import de.featjar.feature.model.IConstraint;
+import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
+import de.featjar.feature.model.IFeature;
+import de.featjar.feature.model.IFeatureTree;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.Iterator;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import de.featjar.feature.model.TestFeature;
 
 /**
  * Tests for {@link FeatureModel}, its elements, and its mixins.
@@ -230,438 +256,262 @@ public class FeatureModelTest {
         Assertions.assertTrue(actualChildren.containsAll(expectedChildren), "All expected children should be present in the feature tree of the root feature");
     }
 
+    
+    
+    private IFeatureTree root;
+    private IFeatureTree childNode1;
+    private IFeatureTree childNode2;
+    private IFeatureTree gcNode1;
+    private IFeatureTree gcNode2;
+    private IFeatureTree gcNode3;
+    private IFeatureTree gcNode4;
+    private IFeatureTree gcNode5;
+    private IFeatureTree gcNode6;
+    private IFeatureTree gcNode7;
+    private IFeatureTree gcNode8;
+    private IFeatureTree gcNode9;
+    private IFeatureTree gcNode10;
+
+    @BeforeEach
+    public void setUp() {
+        FeatureModel featureModel = new FeatureModel();
+
+        // Initialize the root feature and its tree node
+        IFeature rootFeature = featureModel.mutate().addFeature("Root");
+        root = featureModel.mutate().addFeatureTreeRoot(rootFeature);
+
+        // Add child1 and its grandchildren (gc1, gc2, gc3)
+        IFeature child1 = featureModel.mutate().addFeature("Child1");
+        childNode1 = root.mutate().addFeatureBelow(child1);
+
+        IFeature gc1 = featureModel.mutate().addFeature("GC1");
+        gcNode1 = childNode1.mutate().addFeatureBelow(gc1);
+
+        IFeature gc2 = featureModel.mutate().addFeature("GC2");
+        gcNode2 = childNode1.mutate().addFeatureBelow(gc2);
+
+        IFeature gc3 = featureModel.mutate().addFeature("GC3");
+        gcNode3 = childNode1.mutate().addFeatureBelow(gc3);
+
+        // Add child2 and its grandchildren (gc4, gc5, gc6, gc7, gc8, gc9, gc10)
+        IFeature child2 = featureModel.mutate().addFeature("Child2");
+        childNode2 = root.mutate().addFeatureBelow(child2);
+
+        IFeature gc4 = featureModel.mutate().addFeature("GC4");
+        gcNode4 = childNode2.mutate().addFeatureBelow(gc4);
+
+        IFeature gc5 = featureModel.mutate().addFeature("GC5");
+        gcNode5 = childNode2.mutate().addFeatureBelow(gc5);
+
+        IFeature gc6 = featureModel.mutate().addFeature("GC6");
+        gcNode6 = childNode2.mutate().addFeatureBelow(gc6);
+
+        IFeature gc7 = featureModel.mutate().addFeature("GC7");
+        gcNode7 = gcNode4.mutate().addFeatureBelow(gc7);
+
+        IFeature gc8 = featureModel.mutate().addFeature("GC8");
+        gcNode8 = gcNode4.mutate().addFeatureBelow(gc8);
+
+        IFeature gc9 = featureModel.mutate().addFeature("GC9");
+        gcNode9 = gcNode7.mutate().addFeatureBelow(gc9);
+
+        IFeature gc10 = featureModel.mutate().addFeature("GC10");
+        gcNode10 = gcNode7.mutate().addFeatureBelow(gc10);
+
+        // Print initial setup to confirm
+        System.out.println("Tree structure after setup:");
+        printTree(root, "");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.out.println("Tree structure after test:");
+        printTree(root, "");
+    }
+
+    private void printTree(IFeatureTree node, String indent) {
+    	System.out.println(Trees.traverse(node, new  TreePrinter()));
+    }
+
     @Test
     public void testMoveChildBelowGrandchildShouldFail() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Manually create the tree structure as the createTree method is not static
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-
-        // Set up the tree structure
-        root.addChild(child1);
-        root.addChild(child2);
-
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertEquals("Child1", child1.getFeature().getName().orElse(""));
-        assertEquals("GC1", gc1.getFeature().getName().orElse(""));
-        assertTrue(child1.getGroupFeatures().contains(gc1));
-        assertTrue(root.getGroupFeatures().contains(child1));
+        assertEquals("Child1", childNode1.getFeature().getName().orElse(""));
+        assertEquals("GC1", gcNode1.getFeature().getName().orElse(""));
+        assertTrue(childNode1.getGroupFeatures().contains(gcNode1));
+        assertTrue(root.getGroupFeatures().contains(childNode1));
 
         // Attempt to move a node below one of its own descendants
         Exception exception1 = assertThrows(IllegalArgumentException.class, () -> {
-            root.moveNode(root, child1, gc1);
+            childNode1.mutate().moveNode(gcNode1);
         });
         String expectedMessage1 = "Cannot move a node below itself or one of its own descendants.";
         String actualMessage1 = exception1.getMessage();
         assertTrue(actualMessage1.contains(expectedMessage1));
 
         System.out.println("\nTree structure after attempting invalid move:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertTrue(child1.getGroupFeatures().contains(gc1));
-        assertTrue(root.getGroupFeatures().contains(child1));
+        assertTrue(childNode1.getGroupFeatures().contains(gcNode1));
+        assertTrue(root.getGroupFeatures().contains(childNode1));
 
         // Attempt to move a node below itself
         Exception exception2 = assertThrows(IllegalArgumentException.class, () -> {
-            root.moveNode(root, child1, child1);
+            childNode1.mutate().moveNode(childNode1);
         });
         String expectedMessage2 = "Cannot move a node below itself or one of its own descendants.";
         String actualMessage2 = exception2.getMessage();
         assertTrue(actualMessage2.contains(expectedMessage2));
 
         System.out.println("\nTree structure after attempting invalid addition:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertTrue(root.getGroupFeatures().contains(child1));
-        assertTrue(child1.getGroupFeatures().contains(gc1));
+        assertTrue(root.getGroupFeatures().contains(childNode1));
+        assertTrue(childNode1.getGroupFeatures().contains(gcNode1));
     }
 
-
-    
     @Test
     public void testMoveChild1AboveItself() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Manually create the tree structure as the createTree method is not static
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-
-        // Set up the tree structure
-        root.addChild(child1);
-        root.addChild(child2);
-
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertEquals("Child1", child1.getFeature().getName().orElse(""));
-        assertTrue(root.getGroupFeatures().contains(child1));
+        assertEquals("Child1", childNode1.getFeature().getName().orElse(""));
+        assertTrue(root.getGroupFeatures().contains(childNode1));
 
         System.out.println("\nAttempting to move Child1 above itself:");
-        root.moveNode(root, child1, root);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            childNode1.mutate().addFeatureAbove(childNode1.getFeature());
+        });
+        String expectedMessage = "Cannot move a node above itself.";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
 
         System.out.println("\nTree structure after attempting to move Child1 above itself:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertTrue(root.getGroupFeatures().contains(child1), "Root should still have Child1 as a child.");
-        assertEquals("Child1", child1.getFeature().getName().orElse(""), "The name of Child1 should remain unchanged.");
+        assertTrue(root.getGroupFeatures().contains(childNode1), "Root should still have Child1 as a child.");
+        assertEquals("Child1", childNode1.getFeature().getName().orElse(""), "The name of Child1 should remain unchanged.");
     }
 
-
-    
-    
     @Test
     public void testSwapGrandchildren() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        // Perform the swap operation
-        root.swapGrandchildren(root, gc1, gc4);
+        // Perform the swap operation using the swap method from the IFeatureTree interface
+        gcNode1.mutate().swap(gcNode4);
 
         System.out.println("\nTree structure after swapping GC1 and GC4:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertEquals("GC4", root.getGroupFeatures().get(0).getGroupFeatures().get(0).getFeature().getName().orElse(""));
-        assertEquals("GC1", root.getGroupFeatures().get(1).getGroupFeatures().get(0).getFeature().getName().orElse(""));
+        // Verify the swap
+        assertEquals("GC4", childNode1.getChildren().get(0).getFeature().getName().orElse(""));
+        assertEquals("GC1", childNode2.getChildren().get(0).getFeature().getName().orElse(""));
     }
 
-
-
-
+    
     @Test
     public void testMoveGrandchild7ToChild2() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
         System.out.println("\nMoving GC7 from below GC4 to below Child2:");
-        root.moveNode(root, gc7, child2);
+        gcNode7.mutate().moveNode(childNode2);
 
         System.out.println("\nTree structure after moving GC7:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertFalse(gc4.getGroupFeatures().contains(gc7), "GC4 should no longer have GC7 as a child.");
-        assertTrue(child2.getGroupFeatures().contains(gc7), "Child2 should now have GC7 as a child.");
+        assertFalse(gcNode4.getGroupFeatures().contains(gcNode7), "GC4 should no longer have GC7 as a child.");
+        assertTrue(childNode2.getGroupFeatures().contains(gcNode7), "Child2 should now have GC7 as a child.");
     }
 
-
-    
-
-    
     @Test
     public void testMoveGrandchild8ToChild2() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-        
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
         System.out.println("\nMoving GC8 from below GC4 to below Child2:");
-        root.moveNode(root, gc8, child2);
+        gcNode8.mutate().moveNode(childNode2);
 
         System.out.println("\nTree structure after moving GC8:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertFalse(gc4.getGroupFeatures().contains(gc8), "GC4 should no longer have GC8 as a child.");
-        assertTrue(child2.getGroupFeatures().contains(gc8), "Child2 should now have GC8 as a child.");
+        assertFalse(gcNode4.getGroupFeatures().contains(gcNode8), "GC4 should no longer have GC8 as a child.");
+        assertTrue(childNode2.getGroupFeatures().contains(gcNode8), "Child2 should now have GC8 as a child.");
     }
-
-
 
     
     @Test
     public void testMoveGrandchild7ToRoot() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-        
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
         System.out.println("\nMoving GC7 from below GC4 to below Root:");
-        root.moveNode(root, gc7, root);
+        gcNode7.mutate().moveNode(root);
 
         System.out.println("\nTree structure after moving GC7:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertFalse(gc4.getGroupFeatures().contains(gc7), "GC4 should no longer have GC7 as a child.");
-        assertTrue(root.getGroupFeatures().contains(gc7), "Root should now have GC7 as a child.");
+        assertFalse(gcNode4.getGroupFeatures().contains(gcNode7), "GC4 should no longer have GC7 as a child.");
+        assertTrue(root.getGroupFeatures().contains(gcNode7), "Root should now have GC7 as a child.");
 
-        System.out.println("Name of moved node: " + gc7.getFeature().getName().orElse("Unknown"));
-        assertEquals("GC7", gc7.getFeature().getName().orElse("Unknown"), "The name of GC7 should remain unchanged.");
+        System.out.println("Name of moved node: " + gcNode7.getFeature().getName().orElse("Unknown"));
+        assertEquals("GC7", gcNode7.getFeature().getName().orElse("Unknown"), "The name of GC7 should remain unchanged.");
     }
 
-
-
-    
     @Test
     public void testMoveGrandchild8ToRoot() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-        
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
         System.out.println("\nMoving GC8 from below GC4 to below Root:");
-        root.moveNode(root, gc8, root);
+        gcNode8.mutate().moveNode(root);
 
         System.out.println("\nTree structure after moving GC8:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertFalse(gc4.getGroupFeatures().contains(gc8), "GC4 should no longer have GC8 as a child.");
-        assertTrue(root.getGroupFeatures().contains(gc8), "Root should now have GC8 as a child.");
+        assertFalse(gcNode4.getGroupFeatures().contains(gcNode8), "GC4 should no longer have GC8 as a child.");
+        assertTrue(root.getGroupFeatures().contains(gcNode8), "Root should now have GC8 as a child.");
 
-        System.out.println("Name of moved node: " + gc8.getFeature().getName().orElse("Unknown"));
-        assertEquals("GC8", gc8.getFeature().getName().orElse("Unknown"), "The name of GC8 should remain unchanged.");
+        System.out.println("Name of moved node: " + gcNode8.getFeature().getName().orElse("Unknown"));
+        assertEquals("GC8", gcNode8.getFeature().getName().orElse("Unknown"), "The name of GC8 should remain unchanged.");
     }
 
-
-
-    
     @Test
     public void testMoveGrandchild5ToRoot() {
-        // Create an instance of a class that implements IFeatureTree to use its methods
-        IFeatureTree.FeatureTreeNode root = new IFeatureTree.FeatureTreeNode(new TestFeature("Root"));
-
-        // Assume child1 and its grandchildren are already set up and added to root
-        IFeatureTree.FeatureTreeNode child1 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child1"));
-        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
-        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
-        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
-
-        child1.addChild(gc1);
-        child1.addChild(gc2);
-        child1.addChild(gc3);
-        root.addChild(child1);
-
-        // Manually create the tree structure for child2 and its grandchildren
-        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
-        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
-        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
-        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
-        IFeatureTree.FeatureTreeNode gc7 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC7"));
-        IFeatureTree.FeatureTreeNode gc8 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC8"));
-        IFeatureTree.FeatureTreeNode gc9 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC9"));
-        IFeatureTree.FeatureTreeNode gc10 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC10"));
-
-        root.addChild(child2);
-        child2.addChild(gc4);
-        child2.addChild(gc5);
-        child2.addChild(gc6);
-
-        gc4.addChild(gc7);
-        gc4.addChild(gc8);
-        gc7.addChild(gc9);
-        gc7.addChild(gc10);
-
         System.out.println("Initial tree structure:");
-        root.printTree(root, "");
+        printTree(root, "");
 
         System.out.println("\nMoving GC5 from below Child2 to below Root:");
-        root.moveNode(root, gc5, root);
+        gcNode5.mutate().moveNode(root);
 
         System.out.println("\nTree structure after moving GC5:");
-        root.printTree(root, "");
+        printTree(root, "");
 
-        assertFalse(child2.getGroupFeatures().contains(gc5), "Child2 should no longer have GC5 as a child.");
-        assertTrue(root.getGroupFeatures().contains(gc5), "Root should now have GC5 as a child.");
-        assertEquals("GC5", root.getGroupFeatures().get(root.getGroupFeatures().size() - 1).getFeature().getName().orElse("Unknown"), "GC5 should be the last child of the root.");
+        assertFalse(childNode2.getGroupFeatures().contains(gcNode5), "Child2 should no longer have GC5 as a child.");
+        assertTrue(root.getGroupFeatures().contains(gcNode5), "Root should now have GC5 as a child.");
+        assertEquals("GC5", gcNode5.getFeature().getName().orElse("Unknown"), "The name of GC5 should remain unchanged.");
 
-        assertTrue(gc4.getGroupFeatures().contains(gc7), "GC4 should still have GC7 as a child.");
-        assertTrue(gc4.getGroupFeatures().contains(gc8), "GC4 should still have GC8 as a child.");
-        assertTrue(gc7.getGroupFeatures().contains(gc9), "GC7 should still have GC9 as a child.");
-        assertTrue(gc7.getGroupFeatures().contains(gc10), "GC7 should still have GC10 as a child.");
+        assertTrue(gcNode4.getGroupFeatures().contains(gcNode7), "GC4 should still have GC7 as a child.");
+        assertTrue(gcNode4.getGroupFeatures().contains(gcNode8), "GC4 should still have GC8 as a child.");
+        assertTrue(gcNode7.getGroupFeatures().contains(gcNode9), "GC7 should still have GC9 as a child.");
+        assertTrue(gcNode7.getGroupFeatures().contains(gcNode10), "GC7 should still have GC10 as a child.");
     }
 
+    private void printTreeForTestMoveGrandchild5ToRoot(IFeatureTree node, String indent) {
+        System.out.println(indent + node.getFeature().getName().orElse(""));
+        for (IFeatureTree child : node.getChildren()) {
+            printTreeForTestMoveGrandchild5ToRoot(child, indent + "  ");
+        }
+    }
+
+
+    
+}
 
 
     
 
-}
+

@@ -1,28 +1,9 @@
-/*
- * Copyright (C) 2024 FeatJAR-Development-Team
- *
- * This file is part of FeatJAR-feature-model.
- *
- * feature-model is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3.0 of the License,
- * or (at your option) any later version.
- *
- * feature-model is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with feature-model. If not, see <https://www.gnu.org/licenses/>.
- *
- * See <https://github.com/FeatureIDE/FeatJAR-feature-model> for further information.
- */
 package de.featjar.feature.model;
 
 import de.featjar.base.data.Attribute;
 import de.featjar.base.data.IAttribute;
 import de.featjar.base.data.Range;
+import de.featjar.base.data.Result;
 import de.featjar.base.tree.structure.ARootedTree;
 import de.featjar.base.tree.structure.ITree;
 import de.featjar.feature.model.IFeatureTree.IMutableFeatureTree;
@@ -102,19 +83,18 @@ public class FeatureTree extends ARootedTree<IFeatureTree> implements IMutableFe
     }
 
     protected final IFeature feature;
-
     protected int groupID;
-
     protected Range featureRange;
     protected List<Group> groups;
-
     protected LinkedHashMap<IAttribute<?>, Object> attributeValues;
+    protected IFeatureTree parent;
 
     protected FeatureTree(IFeature feature) {
         this.feature = Objects.requireNonNull(feature);
         featureRange = Range.of(0, 1);
         groups = new ArrayList<>(1);
         groups.add(new Group(Range.atLeast(0)));
+        this.parent = null; // Ensure parent is initialized
     }
 
     protected FeatureTree(FeatureTree otherFeatureTree) {
@@ -142,6 +122,9 @@ public class FeatureTree extends ARootedTree<IFeatureTree> implements IMutableFe
 
     @Override
     public List<IFeatureTree> getGroupFeatures() {
+        if (parent == null) {
+            return Collections.emptyList(); // Handle case where parent is null
+        }
         return parent.getChildren().stream()
                 .filter(t -> t.getGroupID() == groupID)
                 .collect(Collectors.toList());
@@ -242,7 +225,7 @@ public class FeatureTree extends ARootedTree<IFeatureTree> implements IMutableFe
 
     @Override
     public void setFeatureRange(Range featureRange) {
-        featureRange = Range.copy(featureRange);
+        this.featureRange = Range.copy(featureRange);
     }
 
     @Override
@@ -282,11 +265,53 @@ public class FeatureTree extends ARootedTree<IFeatureTree> implements IMutableFe
         return (S) attributeValues.remove(attribute);
     }
 
-	@Override										//sarthak
-	public boolean isRoot() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isRoot() {
+        return parent == null;
+    }
 
-	
+    @Override
+    public Result<IFeatureTree> getParent() {
+        return Result.ofNullable(parent);
+    }
+
+    @Override
+    public void moveNode(IFeatureTree newParent) {
+        if (newParent == null || this == newParent || isDescendant(newParent, this)) {
+            throw new IllegalArgumentException("Cannot move a node below itself or one of its own descendants.");
+        }
+
+        Result<IFeatureTree> currentParent = getParent();
+        if (currentParent.isPresent()) {
+            currentParent.get().removeChild(this);
+        }
+        newParent.addChild(this);
+        this.setParent(newParent);
+    }
+
+    @Override
+    public void addChild(IFeatureTree child) {
+        if (child == null || getChildren().contains(child)) {
+            return; // Avoid adding null or duplicate children
+        }
+        super.addChild(child);
+    }
+
+    @Override
+    public void removeChild(IFeatureTree child) {
+        if (child == null || !getChildren().contains(child)) {
+            return; // Avoid removing null or non-existent children
+        }
+        super.removeChild(child);
+    }
+
+    @Override
+    public List<IFeatureTree> getChildren() {
+        return (List<IFeatureTree>) super.getChildren();
+    }
+
+    @Override
+    public void setParent(IFeatureTree parent) {
+        this.parent = parent;
+    }
 }

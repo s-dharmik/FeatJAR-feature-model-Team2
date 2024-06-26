@@ -23,7 +23,7 @@ package de.featjar.feature.model;
 import de.featjar.base.data.Sets;
 import de.featjar.base.tree.Trees;
 import de.featjar.feature.model.IConstraint.IMutableConstraint;
-import de.featjar.formula.structure.IFormula;
+import de.featjar.formula.structure.formula.IFormula;
 import java.util.LinkedHashSet;
 
 public class Constraint extends AFeatureModelElement implements IMutableConstraint {
@@ -85,4 +85,28 @@ public class Constraint extends AFeatureModelElement implements IMutableConstrai
     public void setDescription(String description) {
         attributeValues.put(Attributes.DESCRIPTION, description);
     }
+
+//	@Override
+//	public void setFormula(de.featjar.feature.model.IFormula formula) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void setFormula(de.featjar.feature.model.IFormula formula) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void setFormula(de.featjar.feature.model.IFormula formula) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void setFormula(de.featjar.feature.model.IFormula formula) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 }
