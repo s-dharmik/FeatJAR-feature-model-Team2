@@ -335,6 +335,39 @@ public class FeatureModelTest {
 
     @Test
     public void testMoveChildBelowGrandchildShouldFail() {
+<<<<<<< HEAD
+=======
+    	IFeature rootFeature = featureModel.mutate().addFeature("root");
+    	// Create an instance of a class that implements IFeatureTree to use its methods
+        IFeatureTree root = featureModel.mutate().addFeatureTreeRoot(rootFeature);
+
+        // Manually create the tree structure as the createTree method is not static
+        IFeature child1 = featureModel.mutate().addFeature("Child1");
+        IFeatureTree childeNode1 = root.mutate().addFeatureBelow(child1);
+        
+        // TODO fix this!
+        IFeatureTree.FeatureTreeNode gc1 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC1"));
+        IFeatureTree.FeatureTreeNode gc2 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC2"));
+        IFeatureTree.FeatureTreeNode gc3 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC3"));
+
+        IFeatureTree.FeatureTreeNode child2 = new IFeatureTree.FeatureTreeNode(new TestFeature("Child2"));
+        IFeatureTree.FeatureTreeNode gc4 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC4"));
+        IFeatureTree.FeatureTreeNode gc5 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC5"));
+        IFeatureTree.FeatureTreeNode gc6 = new IFeatureTree.FeatureTreeNode(new TestFeature("GC6"));
+
+        // Set up the tree structure
+        root.addChild(child1);
+        root.addChild(child2);
+
+        child1.addChild(gc1);
+        child1.addChild(gc2);
+        child1.addChild(gc3);
+
+        child2.addChild(gc4);
+        child2.addChild(gc5);
+        child2.addChild(gc6);
+
+>>>>>>> 588014115fc8bc4d4d369b84f621b4cea3acfcf2
         System.out.println("Initial tree structure:");
         printTree(root, "");
 
