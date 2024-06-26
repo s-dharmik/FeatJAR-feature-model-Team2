@@ -33,6 +33,7 @@ import de.featjar.feature.model.*;
  * @author Elias Kuiter
  */
 public interface IHasCommonAttributes extends IAttributable {
+	
     default Result<String> getName() {
         return getAttributeValue(Attributes.NAME);
     }
@@ -41,7 +42,7 @@ public interface IHasCommonAttributes extends IAttributable {
         return getAttributeValue(Attributes.DESCRIPTION);
     }
 
-    public static interface IHasMutableCommonAttributes extends IMutatableAttributable {
+    public interface IHasMutableCommonAttributes extends IMutatableAttributable {
         void setName(String name);
 
         void setDescription(String description);

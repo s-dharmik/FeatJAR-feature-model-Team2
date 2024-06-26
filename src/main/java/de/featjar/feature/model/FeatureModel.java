@@ -1,31 +1,8 @@
-/*
- * Copyright (C) 2024 FeatJAR-Development-Team
- *
- * This file is part of FeatJAR-feature-model.
- *
- * feature-model is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3.0 of the License,
- * or (at your option) any later version.
- *
- * feature-model is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with feature-model. If not, see <https://www.gnu.org/licenses/>.
- *
- * See <https://github.com/FeatureIDE/FeatJAR-feature-model> for further information.
- */
 package de.featjar.feature.model;
 
 import de.featjar.base.data.Attribute;
-
-
 import de.featjar.base.data.IAttributable.IMutatableAttributable;
 import de.featjar.base.data.IAttribute;
-import de.featjar.base.data.Maps;
 import de.featjar.base.data.Result;
 import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.base.data.identifier.UUIDIdentifier;
@@ -33,17 +10,8 @@ import de.featjar.base.tree.Trees;
 import de.featjar.base.tree.visitor.TreePrinter;
 import de.featjar.feature.model.IFeatureModel.IMutableFeatureModel;
 import de.featjar.formula.structure.formula.IFormula;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.util.*;
 
 public class FeatureModel implements IMutableFeatureModel, IMutatableAttributable, IFeatureModel {
 
@@ -63,13 +31,10 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
     public FeatureModel(IIdentifier identifier) {
         this.identifier = Objects.requireNonNull(identifier);
         featureTreeRoots = new ArrayList<>(1);
-        features = Maps.empty();
-        constraints = Maps.empty();
+        features = new LinkedHashMap<>();
+        constraints = new LinkedHashMap<>();
         attributeValues = new LinkedHashMap<>(4);
     }
-    
-
-    
 
     protected FeatureModel(FeatureModel otherFeatureModel) {
         identifier = otherFeatureModel.getNewIdentifier();
@@ -236,27 +201,21 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
         constraints.put(newConstraint.getIdentifier(), newConstraint);
         return newConstraint;
     }
-    
-    
 
     @Override
     public boolean removeConstraint(IConstraint constraint) {
         Objects.requireNonNull(constraint);
         return constraints.remove(constraint.getIdentifier()) != null;
     }
-    
 
     @Override
     public IFeature addFeature(String name) {
-    	if (name == null) {
+        if (name == null) {
             throw new IllegalArgumentException("Feature name cannot be null");
         }
-    	
-    	//@ananyaks
-    	if (features.values().stream().anyMatch(f -> f.getName().valueEquals(name))) {
+        if (features.values().stream().anyMatch(f -> f.getName().valueEquals(name))) {
             throw new IllegalArgumentException("Feature name conflicts with a predefined or existing feature.");
         }
-        Objects.requireNonNull(name);
         Feature feature = new Feature(this);
         feature.setName(name);
         features.put(feature.getIdentifier(), feature);
@@ -306,6 +265,9 @@ public class FeatureModel implements IMutableFeatureModel, IMutatableAttributabl
         return activeFeatures.contains(featureId);
     }
 
-	
+    @Override
+    public void addConstraint(IConstraint constraint) {
+        Objects.requireNonNull(constraint);
+        constraints.put(constraint.getIdentifier(), constraint);
+    }
 }
-

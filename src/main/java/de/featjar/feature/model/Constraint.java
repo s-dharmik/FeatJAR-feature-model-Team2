@@ -31,7 +31,7 @@ public class Constraint extends AFeatureModelElement implements IMutableConstrai
     protected IFormula formula;
     protected final LinkedHashSet<IFeature> containedFeaturesCache = Sets.empty();
 
-    protected Constraint(IFeatureModel featureModel, IFormula formula) {
+    public Constraint(IFeatureModel featureModel, IFormula formula) {
         super(featureModel);
         setFormula(formula);
     }
@@ -52,7 +52,7 @@ public class Constraint extends AFeatureModelElement implements IMutableConstrai
 
     @Override
     public Constraint clone(IFeatureModel newFeatureModel) {
-        return new Constraint(this);
+        return new Constraint(this, newFeatureModel);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class Constraint extends AFeatureModelElement implements IMutableConstrai
     public void setFormula(IFormula formula) {
         containedFeaturesCache.clear();
         containedFeaturesCache.addAll(IConstraint.getReferencedFeatures(formula, featureModel));
-        Constraint.this.formula = formula;
+        this.formula = formula;
     }
 
     @Override

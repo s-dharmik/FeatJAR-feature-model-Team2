@@ -60,6 +60,12 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
     IFeatureModel clone();
 
     Collection<IFeature> getFeatures();
+    Collection<IConstraint> getConstraints();
+    Result<IConstraint> getConstraint(IIdentifier identifier);
+    boolean hasConstraint(IIdentifier identifier);
+    boolean hasConstraint(IConstraint constraint);
+    int getNumberOfConstraints();
+    IIdentifier getIdentifier();
 
     int getNumberOfFeatures();
 
@@ -92,5 +98,14 @@ public interface IFeatureModel extends IFeatureModelElement, IHasCommonAttribute
         void removeFeatureTreeRoot(IFeatureTree featureTree);
 
         void removeFeatureTreeRoot(IFeature feature);
+        void addConstraint(IConstraint constraint);
+        int getNumberOfFeatures();
+        Result<IFeature> getFeature(String name);
+        boolean hasFeature(IIdentifier identifier);
+        boolean hasFeature(IFeature feature);
+        void activateFeature(IIdentifier featureId);
+        void deactivateFeature(IIdentifier featureId);
+        boolean isFeatureActive(IIdentifier featureId);
+
     }
 }

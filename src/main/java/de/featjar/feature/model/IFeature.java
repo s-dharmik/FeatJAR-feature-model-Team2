@@ -23,6 +23,7 @@ package de.featjar.feature.model;
 import de.featjar.base.data.Result;
 import de.featjar.base.data.Sets;
 import de.featjar.base.data.identifier.AIdentifier;
+import de.featjar.base.data.identifier.IIdentifier;
 import de.featjar.feature.model.mixins.IHasCommonAttributes;
 import java.util.LinkedHashSet;
 
@@ -39,6 +40,8 @@ import java.util.LinkedHashSet;
  */
 public interface IFeature extends IFeatureModelElement, IHasCommonAttributes {
 
+	IIdentifier getIdentifier();
+    IFeatureModel getFeatureModel();
     Result<IFeatureTree> getFeatureTree();
 
     Class<?> getType();
@@ -74,7 +77,7 @@ public interface IFeature extends IFeatureModelElement, IHasCommonAttributes {
         return (IMutableFeature) this;
     }
 
-    static interface IMutableFeature extends IFeature, IHasMutableCommonAttributes {
+     interface IMutableFeature extends IFeature, IHasCommonAttributes.IHasMutableCommonAttributes {
 
         void setType(Class<?> type);
 
